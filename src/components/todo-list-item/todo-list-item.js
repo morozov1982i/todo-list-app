@@ -1,21 +1,51 @@
-import React from "react";
+import React, { Component } from "react";
 
 import "./todo-list-item.css";
 
-const TodoListItem = ({ todoData }) => {
-  return (
-    <span>
-      <span className="todo-list-item-label">{todoData[0].label}</span>
+export default class TodoListItem extends Component {
+  state = { done: false, important: false };
 
-      <button className="btn btn-outline-success btn-sm float-right">
-        <i className="fa fa-exclamation" />
-      </button>
+  onLabelClick = () => {
+    this.setState({
+      done: true
+    });
+  };
 
-      <button className="btn btn-outline-danger btn-sm float-right">
-        <i className="fa fa-trash-o" />
-      </button>
-    </span>
-  );
-};
+  onMarkImportant = () => {
+    this.setState({
+      important: true
+    });
+  };
 
-export default TodoListItem;
+  render() {
+    const { label } = this.props;
+    const { important, done } = this.state;
+
+    let classNames = "todo-list-item";
+    if (done) {
+      classNames += " done";
+    }
+    if (important) {
+      classNames += " important";
+    }
+
+    return (
+      <span className={classNames}>
+        <span className="todo-list-item-label" onClick={this.onLabelClick}>
+          {label}
+        </span>
+
+        <button
+          className="btn btn-outline-success btn-sm float-right"
+          onClick={this.onMarkImportant}
+        >
+          <i className="fa fa-exclamation" />
+        </button>
+
+        <button className="btn btn-outline-danger btn-sm float-right">
+          <i className="fa fa-trash-o" />
+        </button>
+      </span>
+    );
+  }
+}
