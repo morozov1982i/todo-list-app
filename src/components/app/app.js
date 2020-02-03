@@ -16,7 +16,9 @@ export default class App extends Component {
       this.ceateTodoItem("Выучить React и Redux"),
       this.ceateTodoItem("Сделать крутячее приложение"),
       this.ceateTodoItem("Устроиться на работу")
-    ]
+    ],
+    searchTerm: "",
+    listFilter: "All"
   };
 
   ceateTodoItem(label) {
@@ -34,6 +36,36 @@ export default class App extends Component {
     });
     return [...newArr];
   }
+
+  searchItems = (todoData, searchTerm) => {
+    if (searchTerm === "") {
+      return todoData;
+    }
+    return todoData.filter(item => {
+      return item.label.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
+    });
+  };
+
+  searchFilter = (items, filter) => {
+    switch (filter) {
+      case "All":
+        return items;
+      case "Active":
+        return items.filter(item => !item.done);
+      case "Done":
+        return items.filter(item => item.done);
+      default:
+        return items;
+    }
+  };
+
+  onSearchChange = searchTerm => {
+    this.setState({ searchTerm });
+  };
+
+  onFilterChange = listFilter => {
+    this.setState({ listFilter });
+  };
 
   deleteItem = id => {
     const todoData = this.state.todoData.filter(todo => {
@@ -82,7 +114,13 @@ export default class App extends Component {
   };
 
   render() {
-    const { todoData } = this.state;
+    const { todoData, searchTerm, listFilter } = this.state;
+
+    const visibleItems = this.searchFilter(
+      this.searchItems(todoData, searchTerm),
+      listFilter
+    );
+
     const doneCount = todoData.filter(el => el.done).length;
     const todoCount = todoData.length - doneCount;
 
@@ -90,12 +128,15 @@ export default class App extends Component {
       <div className="todo-app">
         <AppHeader toDo={todoCount} done={doneCount} />
         <div className="top-panel d-flex">
-          <SearchPanel />
-          <ItemStatusFilter />
+          <SearchPanel onSearchChange={this.onSearchChange} />
+          <ItemStatusFilter
+            onFilterChange={this.onFilterChange}
+            listFilter={listFilter}
+          />
         </div>
         <TodoList
           onDeleted={this.deleteItem}
-          todoData={this.state.todoData}
+          todoData={visibleItems}
           onToggleDone={this.onToggleDone}
           onToggleImportant={this.onToggleImportant}
         />
